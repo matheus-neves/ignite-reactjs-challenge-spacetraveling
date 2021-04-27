@@ -6,6 +6,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
 import { useState } from 'react';
+import Head from 'next/head';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -58,41 +59,46 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   };
 
   return (
-    <main className={styles.container}>
-      <h1 className={styles.logo}>
-        <img src="/images/logo.svg" alt="logo" />
-      </h1>
-      <ul className={styles.listContainer}>
-        {posts?.map(post => (
-          <li key={post.uid} className={styles.listContent}>
-            <Link href={`post/${post.uid}`}>
-              <a>
-                <strong>{post.data.title}</strong>
-                <p>{post.data.subtitle}</p>
-                <div>
-                  <time>
-                    <FiCalendar color="#BBBBBB" size="20px" />{' '}
-                    {post.first_publication_date}
-                  </time>
-                  <span>
-                    <FiUser color="#BBBBBB" size="20px" /> {post.data.author}
-                  </span>
-                </div>
-              </a>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      {nextPage && (
-        <button
-          type="button"
-          className={styles.btnLoadMore}
-          onClick={handlePagination}
-        >
-          Carregar mais posts
-        </button>
-      )}
-    </main>
+    <>
+      <Head>
+        <title>Home | spacetraveling</title>
+      </Head>
+      <main className={commonStyles.container}>
+        <h1 className={styles.logo}>
+          <img src="/images/logo.svg" alt="logo" />
+        </h1>
+        <ul className={styles.listContainer}>
+          {posts?.map(post => (
+            <li key={post.uid} className={styles.listContent}>
+              <Link href={`post/${post.uid}`}>
+                <a>
+                  <strong>{post.data.title}</strong>
+                  <p>{post.data.subtitle}</p>
+                  <div>
+                    <time>
+                      <FiCalendar color="#BBBBBB" size="20px" />{' '}
+                      {post.first_publication_date}
+                    </time>
+                    <span>
+                      <FiUser color="#BBBBBB" size="20px" /> {post.data.author}
+                    </span>
+                  </div>
+                </a>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {nextPage && (
+          <button
+            type="button"
+            className={styles.btnLoadMore}
+            onClick={handlePagination}
+          >
+            Carregar mais posts
+          </button>
+        )}
+      </main>
+    </>
   );
 }
 
