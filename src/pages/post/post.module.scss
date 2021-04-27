@@ -1,1 +1,66 @@
-// TODO
+.container {
+  max-width: 720px;
+  width: 100%;
+  margin: 80px auto;
+  padding: 0 1rem;
+}
+
+.banner {
+  width: 100%;
+}
+
+.title {
+  margin-bottom: 1.5rem;
+
+  font-weight: bold;
+  font-size: 3rem;
+  line-height: 3.625rem;
+
+  color: var(--gray-100);
+}
+
+.boxInfo {
+  display: flex;
+  align-items: center;
+  color: var(--gray-800);
+  font-size: 0.875rem;
+
+  time,
+  span {
+    display: flex;
+    align-items: center;
+    margin-right: 1.5rem;
+  }
+
+  svg {
+    margin-right: .5rem;
+  }
+}
+
+.content {
+
+  margin: 4rem 0 5rem;
+
+  section + section {
+    margin-top: 2.5rem;
+  }
+
+  h2 {
+    margin-bottom: 2.5rem;
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: var(--gray-100);
+  }
+
+  p {
+    font-size: 1.125rem;
+    line-height: 140%;
+    color: var(--gray-500);
+    text-align: justify;
+  }
+
+  a {
+    font-size: 1.125rem;
+    color: var(--pink);
+  }
+}
