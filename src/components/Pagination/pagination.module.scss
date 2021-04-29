@@ -1,0 +1,31 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3rem 0;
+  border-top: 1px solid rgba(40, 44, 52, 0.83);;
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  div:last-child {
+    text-align: right;
+  }
+
+  strong {
+    margin-bottom: 0.5rem;
+    font-size: 1.125rem;
+    line-height: 1.375rem;
+    font-weight: normal;
+    color: var(--gray-100);
+  }
+
+  a {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.19rem;
+    color: var(--pink);
+  }
+}
