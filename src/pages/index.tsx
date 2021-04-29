@@ -42,12 +42,12 @@ export default function Home({
   const [nextPage, setNextPage] = useState(next_page);
   const [posts, setPosts] = useState(results);
 
-  const handlePagination = async () => {
+  const handlePagination = async (): Promise<void> => {
     const tempPosts = [...posts];
 
     const response = await fetch(next_page);
     const data = await response.json();
-    const formattedResults = data.results.map(result => ({
+    const formattedResults = data.results.map((result: Post) => ({
       ...result,
       first_publication_date: format(
         new Date(result.first_publication_date),
@@ -118,7 +118,7 @@ export const getStaticProps: GetStaticProps = async ({
   const postsResponse = await prismic.query(
     Prismic.Predicates.at('document.type', 'posts'),
     {
-      pageSize: 1,
+      pageSize: 2,
       ref: previewData?.ref ?? null,
     }
   );
