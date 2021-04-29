@@ -7,6 +7,8 @@ import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { Document } from '@prismicio/client/types/documents';
+import ApiSearchResponse from '@prismicio/client/types/ApiSearchResponse';
 import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
 
@@ -14,10 +16,15 @@ import styles from './post.module.scss';
 
 import Comments from '../../components/Comments ';
 import PreviewButton from '../../components/PreviewButton';
+import Pagination, {
+  PaginationProps,
+  PageProps,
+} from '../../components/Pagination';
 
 interface Post {
   uid: string;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     subtitle: string;
@@ -37,24 +44,29 @@ interface Post {
 interface PostProps {
   post: Post;
   preview: boolean;
+  pagination: PaginationProps;
 }
 
-export default function Post({ post, preview }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  preview,
+  pagination,
+}: PostProps): JSX.Element {
   const router = useRouter();
 
-  if (router.isFallback) {
-    return <div>Carregando...</div>;
-  }
-
   const readingTime = useMemo(() => {
-    const numberOfWords = post.data.content.reduce((acc, content) => {
+    const numberOfWords = post?.data?.content.reduce((acc, content) => {
       const counterHeading = content.heading.split(/\s+/).length;
       const counterBody = RichText.asText(content.body).split(/\s+/).length;
       return acc + counterHeading + counterBody;
     }, 0);
 
     return Math.ceil(numberOfWords / 200);
-  }, []);
+  }, [post?.data?.content]);
+
+  if (router.isFallback) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <>
@@ -84,6 +96,15 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
               <FiClock color="#BBBBBB" size="20px" /> {`${readingTime} min`}
             </span>
           </div>
+          <span>
+            {format(
+              new Date(post.last_publication_date),
+              "'*' 'editado' 'em' dd MMM yyyy',' 'às' HH':'MM",
+              {
+                locale: ptBR,
+              }
+            )}
+          </span>
         </header>
 
         <div className={styles.content}>
@@ -102,6 +123,7 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
       </article>
 
       <aside className={styles.container}>
+        <Pagination {...pagination} />
         <Comments />
         {preview && <PreviewButton />}
       </aside>
@@ -131,6 +153,20 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
+const mappingPagination = (
+  currentId: string,
+  responsePageResults: Document
+): PageProps | null => {
+  if (!responsePageResults || currentId === responsePageResults.id) return null;
+
+  const { data, uid } = responsePageResults;
+
+  return {
+    title: data.title,
+    uid,
+  };
+};
+
 export const getStaticProps: GetStaticProps = async ({
   params,
   preview = false,
@@ -138,9 +174,33 @@ export const getStaticProps: GetStaticProps = async ({
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('posts', params.slug as string, {});
 
+  const responsePrevPage = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.id,
+      fetch: ['posts.title'],
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const responseNextPage = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'posts')],
+    {
+      pageSize: 1,
+      after: response.id,
+      fetch: ['posts.title'],
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
+  const prevPage = mappingPagination(response.id, responsePrevPage.results[0]);
+  const nextPage = mappingPagination(response.id, responseNextPage.results[0]);
+
   const post: Post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -154,6 +214,10 @@ export const getStaticProps: GetStaticProps = async ({
     props: {
       post,
       preview,
+      pagination: {
+        prevPage,
+        nextPage,
+      },
     },
     revalidate: 60 * 60 * 12, // 12 hours
   };

@@ -3,6 +3,15 @@
   width: 100%;
   margin: 80px auto;
   padding: 0 1rem;
+
+  header > span {
+    display: inline-block;
+    margin-top: 16px;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 17px;
+    color: var(--gray-800)
+  }
 }
 
 .banner {
